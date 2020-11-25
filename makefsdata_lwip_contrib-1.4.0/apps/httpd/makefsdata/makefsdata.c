@@ -317,21 +317,293 @@ void process_file_data(const char *filename, FILE *data_file)
 {
   FILE *source_file;
   size_t len, written, i, src_off=0;
-
+  size_t flag = 0, num=0;
+  char buf[16];
   source_file = fopen(filename, "rb");
-
+  
   do {
     size_t off = 0;
-    len = fread(file_buffer_raw, 1, COPY_BUFSIZE, source_file);
+    len = fread(file_buffer_raw, 1, 1, source_file);
     if (len > 0) {
+        
       for (i = 0; i < len; i++) {
-        sprintf(&file_buffer_c[off], "0x%02.2x,", file_buffer_raw[i]);
-        off += 5;
-        if ((++src_off % HEX_BYTES_PER_LINE) == 0) {
-          memcpy(&file_buffer_c[off], NEWLINE, NEWLINE_LEN);
-          off += NEWLINE_LEN;
-        }
+          //删除<!--#del_s--> <!--#del_e-->之间的数据
+          if (flag == 0 && num == 0)
+          {
+              if (file_buffer_raw[i + 0] == '<')
+              {
+                  flag = 1;
+                  buf[num++] = file_buffer_raw[i + 0];
+                  //printf("%c", file_buffer_raw[i + 0]);
+              }
+              else
+                  flag = 0;
+          }
+          else if (flag == 1 && num == 1)
+          {
+              if (file_buffer_raw[i + 0] == '!')
+              {
+                  buf[num++] = file_buffer_raw[i + 0];
+                  //printf("%c", file_buffer_raw[i + 0]);
+              }
+              else
+                  flag = 0;
+          }
+          else if (flag == 1 && num == 2)
+          {
+              if (file_buffer_raw[i + 0] == '-')
+              {
+                  buf[num++] = file_buffer_raw[i + 0];
+                  //printf("%c", file_buffer_raw[i + 0]);
+              }
+              else
+                  flag = 0;
+          }
+
+          else if (flag == 1 && num == 3)
+          {
+              if (file_buffer_raw[i + 0] == '-')
+              {
+                  buf[num++] = file_buffer_raw[i + 0];
+                  //printf("%c", file_buffer_raw[i + 0]);
+              }
+              else
+                  flag = 0;
+          }
+
+          else if (flag == 1 && num == 4)
+          {
+              if (file_buffer_raw[i + 0] == '#')
+              {
+                  buf[num++] = file_buffer_raw[i + 0];
+                      //printf("%c", file_buffer_raw[i + 0]);
+              }
+              else
+                  flag = 0;
+          }
+
+          else if (flag == 1 && num == 5)
+          {
+              if (file_buffer_raw[i + 0] == 'd')
+              {
+                  buf[num++] = file_buffer_raw[i + 0];
+                  //printf("%c", file_buffer_raw[i + 0]);
+              }
+              else
+                  flag = 0;
+          }
+
+          else if (flag == 1 && num == 6)
+          {
+              if (file_buffer_raw[i + 0] == 'e')
+              {
+                  buf[num++] = file_buffer_raw[i + 0];
+                  //printf("%c", file_buffer_raw[i + 0]);
+              }
+              else
+                  flag = 0;
+          }
+
+          else if (flag == 1 && num == 7)
+          {
+              if (file_buffer_raw[i + 0] == 'l')
+              {
+                  buf[num++] = file_buffer_raw[i + 0];
+                  //printf("%c", file_buffer_raw[i + 0]);
+              }
+              else
+                  flag = 0;
+          }
+          else if (flag == 1 && num == 8)
+          {
+              if (file_buffer_raw[i + 0] == '_')
+              {
+                  buf[num++] = file_buffer_raw[i + 0];
+                  //printf("%c", file_buffer_raw[i + 0]);
+              }
+              else
+                  flag = 0;
+          }
+
+          else if (flag == 1 && num == 9)
+          {
+              if (file_buffer_raw[i + 0] == 's')
+              {
+                  buf[num++] = file_buffer_raw[i + 0];
+                  //printf("%c", file_buffer_raw[i + 0]);
+              }
+              else
+                  flag = 0;
+          }
+
+          else if (flag == 1 && num == 10)
+          {
+              if (file_buffer_raw[i + 0] == '-')
+              {
+                  buf[num++] = file_buffer_raw[i + 0];
+                  //printf("%c", file_buffer_raw[i + 0]);
+              }
+              else
+                  flag = 0;
+          }
+
+          else if (flag == 1 && num == 11)
+          {
+              if (file_buffer_raw[i + 0] == '-')
+              {
+                  buf[num++] = file_buffer_raw[i + 0];
+                  //printf("%c", file_buffer_raw[i + 0]);
+              }
+              else
+                  flag = 0;
+          }
+
+          else if (flag == 1 && num == 12)
+          {
+              if (file_buffer_raw[i + 0] == '>')
+              {
+                  flag = 2;
+                  num = 0;
+                  ////printf("%c", file_buffer_raw[i + 0]);
+                  continue;
+              }
+              else
+                  flag = 0;
+          }
+
+          else if (flag == 2 && num == 0)
+          {
+              if (file_buffer_raw[i + 0] == '<')
+              {
+                  flag = 3;
+                  buf[num++] = file_buffer_raw[i + 0];
+              }
+          }
+
+          else if (flag == 3 && num == 1)
+          {
+              if (file_buffer_raw[i + 0] == '!')
+              {
+                  buf[num++] = file_buffer_raw[i + 0];
+              }
+          }
+
+          else if (flag == 3 && num == 2)
+          {
+              if (file_buffer_raw[i + 0] == '-')
+              {
+                  buf[num++] = file_buffer_raw[i + 0];
+              }
+          }
+
+          else if (flag == 3 && num == 3)
+          {
+              if (file_buffer_raw[i + 0] == '-')
+              {
+                  buf[num++] = file_buffer_raw[i + 0];
+              }
+          }
+
+          else if (flag == 3 && num == 4)
+          {
+              if (file_buffer_raw[i + 0] == '#')
+              {
+                  buf[num++] = file_buffer_raw[i + 0];
+              }
+          }
+
+          else if (flag == 3 && num == 5)
+          {
+              if (file_buffer_raw[i + 0] == 'd')
+              {
+                  buf[num++] = file_buffer_raw[i + 0];
+              }
+          }
+
+          else if (flag == 3 && num == 6)
+          {
+              if (file_buffer_raw[i + 0] == 'e')
+              {
+                  buf[num++] = file_buffer_raw[i + 0];
+              }
+          }
+
+          else if (flag == 3 && num == 7)
+          {
+              if (file_buffer_raw[i + 0] == 'l')
+              {
+                  buf[num++] = file_buffer_raw[i + 0];
+              }
+          }
+
+          else if (flag == 3 && num == 8)
+          {
+              if (file_buffer_raw[i + 0] == '_')
+              {
+                  buf[num++] = file_buffer_raw[i + 0];
+              }
+          }
+
+          else if (flag == 3 && num == 9)
+          {
+              if (file_buffer_raw[i + 0] == 'e')
+              {
+                  buf[num++] = file_buffer_raw[i + 0];
+              }
+          }
+
+          else if (flag == 3 && num == 10)
+          {
+              if (file_buffer_raw[i + 0] == '-')
+              {
+                  buf[num++] = file_buffer_raw[i + 0];
+              }
+          }
+          else if (flag == 3 && num == 11)
+          {
+              if (file_buffer_raw[i + 0] == '-')
+              {
+                  buf[num++] = file_buffer_raw[i + 0];
+              }
+          }
+
+          else if (flag == 3 && num == 12)
+          {
+              if (file_buffer_raw[i + 0] == '>')
+              {
+                  flag = 0;
+                  num = 0;
+                  continue;
+              }
+              else
+                  flag = 0;
+          }
+
+          if (flag == 0)
+          {
+              if (num)
+              {
+                  for (int x = 0; x < num; x++)
+                  {
+                      sprintf(&file_buffer_c[off], "0x%02.2x,", buf[x]);
+                      off += 5;
+                      if ((++src_off % HEX_BYTES_PER_LINE) == 0) {
+                          memcpy(&file_buffer_c[off], NEWLINE, NEWLINE_LEN);
+                          off += NEWLINE_LEN;
+                      }
+                  }
+                  num = 0;
+              }
+              sprintf(&file_buffer_c[off], "0x%02.2x,", file_buffer_raw[i]);
+              off += 5;
+              if ((++src_off % HEX_BYTES_PER_LINE) == 0) {
+                  memcpy(&file_buffer_c[off], NEWLINE, NEWLINE_LEN);
+                  off += NEWLINE_LEN;
+              }
+          }
+        
       }
+      
       written = fwrite(file_buffer_c, 1, off, data_file);
     }
   } while(len > 0);
